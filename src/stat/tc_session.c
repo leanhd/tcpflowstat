@@ -141,10 +141,20 @@ process_client_packet(session_t *s, tc_ip_header_t *ip_header,
 
     diff = ack - s->req_cont_last_ack;
 
+    if (diff == 1 && seq == s->req_last_seq) {
+        /* it may ack the fin packet */
+        if (s->req_start_time != 0 && s->resp_end_time !=0) {                        
+            req_time = s->resp_end_time - s->req_start_time;
+            total_req_time += req_time;
+            total_reqs++;
+            tc_log_info(LOG_INFO, 0, "req time 5 style(ms): %u , p:%u", 
+                    req_time, s->clt_port);
+        }
+
+    }
+
     /* process the reset packet */
-    if (diff == 1 && seq == s->req_last_seq || tcp_header->rst 
-            || tcp_header->fin) 
-    {
+    if (tcp_header->rst || tcp_header->fin) {
 
         if (s->resp_end_time == 0) {
             if (s->req_start_time != 0) {                        
