@@ -139,7 +139,7 @@ process_client_packet(session_t *s, tc_ip_header_t *ip_header,
     ack = ntohl(tcp_header->ack_seq);
     seq = ntohl(tcp_header->seq);
 
-    diff = ack - s->req_cont_last_ack;
+    diff = ack - s->req_last_ack;
 
     if (diff == 1 && seq == s->req_last_seq) {
         /* it may ack the fin packet */
@@ -151,6 +151,7 @@ process_client_packet(session_t *s, tc_ip_header_t *ip_header,
                     req_time, s->clt_port);
         }
 
+        s->sm.sess_over = 1;
     }
 
     /* process the reset packet */
