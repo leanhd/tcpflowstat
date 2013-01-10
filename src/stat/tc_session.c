@@ -6,6 +6,7 @@ static hash_table *sessions_table;
 static double      total_req_time = 0;
 static uint64_t    total_reqs = 0;
 
+
 void
 init_for_sessions()
 {
@@ -63,6 +64,7 @@ destroy_for_sessions()
 
 }
 
+
 void 
 output_global_stat()
 {
@@ -71,6 +73,7 @@ output_global_stat()
     tc_log_info(LOG_NOTICE, 0, "average req time(in second):%.3f",
             total_req_time/(1000*total_reqs));
 }
+
 
 static session_t *
 session_create(tc_ip_header_t *ip_header, tc_tcp_header_t *tcp_header)
@@ -174,7 +177,7 @@ process_client_packet(session_t *s, tc_ip_header_t *ip_header,
                     req_time = s->resp_end_time - s->req_start_time;
                     total_req_time += req_time;
                     total_reqs++;
-                    tc_log_info(LOG_INFO, 0, "req dispose time1: %u ,p:%u", 
+                    tc_log_info(LOG_INFO, 0, "req dispose time1: %u , p:%u", 
                             req_time, s->clt_port);
                 }
             } else {
