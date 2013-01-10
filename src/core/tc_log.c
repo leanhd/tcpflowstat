@@ -55,9 +55,7 @@ tc_log_info(int level, int err, const char *fmt, ...)
         return;
     }
 
-#if (TCPCOPY_DEBUG)
     tc_time_update();
-#endif
 
     ll = &tc_log_levels[level];
 
