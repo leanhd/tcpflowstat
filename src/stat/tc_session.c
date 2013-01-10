@@ -147,14 +147,14 @@ process_client_packet(session_t *s, tc_ip_header_t *ip_header,
                 req_time = s->resp_end_time - s->req_start_time;
                 total_req_time += req_time;
                 total_reqs++;
-                tc_log_info(LOG_INFO, 0, "req dispose time3: %u , p:%u", 
+                tc_log_info(LOG_INFO, 0, "req time 3 style(ms): %u , p:%u", 
                         req_time, s->clt_port);
             }
         } else {
             req_time = s->last_pcap_time - s->req_start_time;
             total_req_time += req_time;
             total_reqs++;
-            tc_log_info(LOG_INFO, 0, "req dispose time4: %u , p:%u", 
+            tc_log_info(LOG_INFO, 0, "req time 4 style(ms): %u , p:%u", 
                     req_time, s->clt_port);
         }
         s->sm.sess_over = 1;
@@ -177,14 +177,14 @@ process_client_packet(session_t *s, tc_ip_header_t *ip_header,
                     req_time = s->resp_end_time - s->req_start_time;
                     total_req_time += req_time;
                     total_reqs++;
-                    tc_log_info(LOG_INFO, 0, "req dispose time1: %u , p:%u", 
+                    tc_log_info(LOG_INFO, 0, "req time 1 style(ms): %u , p:%u",
                             req_time, s->clt_port);
                 }
             } else {
                 req_time = s->last_pcap_time - s->req_start_time;
                 total_req_time += req_time;
                 total_reqs++;
-                tc_log_info(LOG_INFO, 0, "req dispose time2: %u , p:%u", 
+                tc_log_info(LOG_INFO, 0, "req time 2 style(ms): %u , p:%u", 
                         req_time, s->clt_port);
             }
 
