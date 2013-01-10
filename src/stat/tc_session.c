@@ -116,7 +116,7 @@ process_client_packet(session_t *s, tc_ip_header_t *ip_header,
         tc_tcp_header_t *tcp_header)
 {
     uint16_t  cont_len;
-    uint32_t  ack;
+    uint32_t  seq, ack, diff;
     long      req_time = 0;
 
     tc_log_debug_trace(LOG_DEBUG, 0, CLIENT_FLAG, ip_header, tcp_header);
@@ -137,9 +137,14 @@ process_client_packet(session_t *s, tc_ip_header_t *ip_header,
     }
 
     ack = ntohl(tcp_header->ack_seq);
+    seq = ntohl(tcp_header->seq);
+
+    diff = ack - s->req_cont_last_ack;
 
     /* process the reset packet */
-    if (tcp_header->rst || tcp_header->fin) {
+    if (diff == 1 && seq == s->req_last_seq || tcp_header->rst 
+            || tcp_header->fin) 
+    {
 
         if (s->resp_end_time == 0) {
             if (s->req_start_time != 0) {                        
@@ -151,11 +156,13 @@ process_client_packet(session_t *s, tc_ip_header_t *ip_header,
                         req_time, s->clt_port);
             }
         } else {
-            req_time = s->last_pcap_time - s->req_start_time;
-            total_req_time += req_time;
-            total_reqs++;
-            tc_log_info(LOG_INFO, 0, "req time 4 style(ms): %u , p:%u", 
-                    req_time, s->clt_port);
+            if (ack != s->req_cont_last_ack) {
+                req_time = s->last_pcap_time - s->req_start_time;
+                total_req_time += req_time;
+                total_reqs++;
+                tc_log_info(LOG_INFO, 0, "req time 4 style(ms): %u , p:%u", 
+                        req_time, s->clt_port);
+            }
         }
         s->sm.sess_over = 1;
 
@@ -195,7 +202,9 @@ process_client_packet(session_t *s, tc_ip_header_t *ip_header,
 
     } else {
 
+        
         s->req_last_ack = ack;
+        s->req_last_seq = seq;
 
         if (s->req_start_time) {
             s->resp_end_time = settings.pcap_time;
