@@ -1,0 +1,14 @@
+Name:
+    tcpflowstat
+    It is a tool for calculating request time for TCP applications
+
+
+Description:
+    TODO
+
+
+
+Note:
+    1) It is tested on Linux only (kernal 2.6 or above).
+    2) Check log files if you encounter some problems and feel free to report them to us(wangbin579@gmail.com).
+
