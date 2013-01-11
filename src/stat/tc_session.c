@@ -70,16 +70,20 @@ void
 output_global_stat()
 {
     int i;
+    uint64_t count = 0;
     tc_log_info(LOG_NOTICE, 0, "total req time(in second):%3f, reqs=%llu",
             total_req_time/1000, total_reqs);
     tc_log_info(LOG_NOTICE, 0, "average req time(in second):%.3f",
             total_req_time/(1000*total_reqs));
     for (i=0; i < 65536; i++) {
+        count = count + distribution[i];
         if (distribution[i] > 0) {
-            tc_log_info(LOG_NOTICE, 0, "distribution in %d (ms) count: %llu",
-                    i, distribution[i]);
+            tc_log_info(LOG_NOTICE, 0, "distr in %d (ms): %llu, accu:%llu",
+                    i, distribution[i], count);
         }
     }
+
+
 }
 
 
