@@ -16,12 +16,14 @@ typedef struct sess_state_machine_s{
     uint32_t clt_closed:1;
     uint32_t candidate_response_waiting:1;
     uint32_t clt_syn_received:1;
+    uint32_t first_req:1;
 
 }sess_state_machine_t;
 
 typedef struct session_s{
     /* hash key for this session */
     uint64_t hash_key;
+    uint64_t reqs;
 
     uint32_t clt_addr;
     uint16_t clt_port;
@@ -30,11 +32,13 @@ typedef struct session_s{
     uint32_t req_cont_last_ack;
     uint32_t req_last_ack;
     uint32_t req_last_seq;
+
     long     last_pcap_time;
     long     req_start_time;
     long     req_end_time;
     long     resp_start_time;
     long     resp_end_time;
+    long     syn_recv_time;
 
     sess_state_machine_t sm; 
 

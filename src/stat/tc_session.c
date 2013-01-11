@@ -127,6 +127,7 @@ process_client_packet(session_t *s, tc_ip_header_t *ip_header,
 
     /* process the syn packet */
     if (tcp_header->syn) {
+        s->syn_recv_time = settings.pcap_time;
         s->sm.clt_syn_received = 1;
         return;
     }
@@ -187,6 +188,8 @@ process_client_packet(session_t *s, tc_ip_header_t *ip_header,
 
         if (ack != s->req_cont_last_ack) {
 
+            s->reqs++;
+
             /* a new request */
 
             if (s->resp_end_time == 0) {
@@ -206,14 +209,19 @@ process_client_packet(session_t *s, tc_ip_header_t *ip_header,
                         req_time, s->clt_port);
             }
 
-            s->req_start_time = settings.pcap_time;
+            if (!s->sm.first_req) {
+                s->sm.first_req = 1;
+                s->req_start_time = s->syn_recv_time;
+            } else {
+                s->req_start_time = settings.pcap_time;
+            }
             s->req_cont_last_ack = ack;
         }
         s->resp_end_time = 0;
 
     } else {
 
-        
+
         s->req_last_ack = ack;
         s->req_last_seq = seq;
 
