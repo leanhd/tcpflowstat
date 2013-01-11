@@ -5,6 +5,7 @@
 static hash_table *sessions_table;
 static double      total_req_time = 0;
 static uint64_t    total_reqs = 0;
+static uint64_t    distribution[65536];
 
 
 void
@@ -68,10 +69,17 @@ destroy_for_sessions()
 void 
 output_global_stat()
 {
+    int i;
     tc_log_info(LOG_NOTICE, 0, "total req time(in second):%3f, reqs=%llu",
             total_req_time/1000, total_reqs);
     tc_log_info(LOG_NOTICE, 0, "average req time(in second):%.3f",
             total_req_time/(1000*total_reqs));
+    for (i=0; i < 65536; i++) {
+        if (distribution[i] > 0) {
+            tc_log_info(LOG_NOTICE, 0, "distribution in %d (ms) count: %llu",
+                    i, distribution[i]);
+        }
+    }
 }
 
 
@@ -107,6 +115,14 @@ session_add(uint64_t key, tc_ip_header_t *ip_header,
 }
 
 
+static void req_stat(long req_time)
+{
+    total_req_time += req_time;
+    total_reqs++;
+    if (req_time >= 0 || req_time <65536) {
+        distribution[req_time]++;
+    }
+}
 
 /*
  * processing client packets
@@ -146,8 +162,7 @@ process_client_packet(session_t *s, tc_ip_header_t *ip_header,
         /* it may ack the fin packet */
         if (s->req_start_time != 0 && s->resp_end_time !=0) {                        
             req_time = s->resp_end_time - s->req_start_time;
-            total_req_time += req_time;
-            total_reqs++;
+            req_stat(req_time);
             tc_log_info(LOG_INFO, 0, "req time 5 style(ms): %u , p:%u", 
                     req_time, s->clt_port);
         }
@@ -162,16 +177,14 @@ process_client_packet(session_t *s, tc_ip_header_t *ip_header,
             if (s->req_start_time != 0) {                        
                 s->resp_end_time = settings.pcap_time;
                 req_time = s->resp_end_time - s->req_start_time;
-                total_req_time += req_time;
-                total_reqs++;
+                req_stat(req_time);
                 tc_log_info(LOG_INFO, 0, "req time 3 style(ms): %u , p:%u", 
                         req_time, s->clt_port);
             }
         } else {
             if (ack != s->req_cont_last_ack) {
                 req_time = s->last_pcap_time - s->req_start_time;
-                total_req_time += req_time;
-                total_reqs++;
+                req_stat(req_time);
                 tc_log_info(LOG_INFO, 0, "req time 4 style(ms): %u , p:%u", 
                         req_time, s->clt_port);
             }
@@ -196,15 +209,13 @@ process_client_packet(session_t *s, tc_ip_header_t *ip_header,
                 if (s->req_start_time != 0) {                        
                     s->resp_end_time = settings.pcap_time;
                     req_time = s->resp_end_time - s->req_start_time;
-                    total_req_time += req_time;
-                    total_reqs++;
+                    req_stat(req_time);
                     tc_log_info(LOG_INFO, 0, "req time 1 style(ms): %u , p:%u",
                             req_time, s->clt_port);
                 }
             } else {
                 req_time = s->last_pcap_time - s->req_start_time;
-                total_req_time += req_time;
-                total_reqs++;
+                req_stat(req_time);
                 tc_log_info(LOG_INFO, 0, "req time 2 style(ms): %u , p:%u", 
                         req_time, s->clt_port);
             }
