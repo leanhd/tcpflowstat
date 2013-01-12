@@ -72,13 +72,13 @@ output_global_stat()
     int i;
     uint64_t count = 0;
     tc_log_info(LOG_NOTICE, 0, "total req time(in second):%3f, reqs=%llu",
-            total_req_time/1000, total_reqs);
+            total_req_time / 1000, total_reqs);
     tc_log_info(LOG_NOTICE, 0, "average req time(in second):%.3f",
-            total_req_time/(1000*total_reqs));
+            total_req_time / (1000 * total_reqs));
     for (i=0; i < 65536; i++) {
         count = count + distribution[i];
         if (distribution[i] > 0) {
-            tc_log_info(LOG_NOTICE, 0, "distr in %d (ms): %llu, accu:%llu",
+            tc_log_info(LOG_INFO, 0, "distr in %d (ms): %llu, accu:%llu",
                     i, distribution[i], count);
         }
     }
@@ -90,7 +90,7 @@ output_global_stat()
 static session_t *
 session_create(tc_ip_header_t *ip_header, tc_tcp_header_t *tcp_header)
 {
-    session_t               *s;
+    session_t   *s;
 
     s = (session_t *)calloc(1, sizeof(session_t));
     if (s == NULL) {
@@ -123,7 +123,7 @@ static void req_stat(long req_time)
 {
     total_req_time += req_time;
     total_reqs++;
-    if (req_time >= 0 || req_time <65536) {
+    if (req_time >= 0 || req_time < 65536) {
         distribution[req_time]++;
     }
 }
@@ -164,7 +164,7 @@ process_client_packet(session_t *s, tc_ip_header_t *ip_header,
 
     if (diff == 1 && seq == s->req_last_seq) {
         /* it may ack the fin packet */
-        if (s->req_start_time != 0 && s->resp_end_time !=0) {                        
+        if (s->req_start_time != 0 && s->resp_end_time != 0) {                        
             req_time = s->resp_end_time - s->req_start_time;
             req_stat(req_time);
             tc_log_info(LOG_INFO, 0, "req time 5 style(ms): %u , p:%u", 
@@ -182,14 +182,14 @@ process_client_packet(session_t *s, tc_ip_header_t *ip_header,
                 s->resp_end_time = settings.pcap_time;
                 req_time = s->resp_end_time - s->req_start_time;
                 req_stat(req_time);
-                tc_log_info(LOG_INFO, 0, "req time 3 style(ms): %u , p:%u", 
+                tc_log_debug2(LOG_INFO, 0, "req time 3 style(ms): %u , p:%u", 
                         req_time, s->clt_port);
             }
         } else {
             if (ack != s->req_cont_last_ack) {
                 req_time = s->last_pcap_time - s->req_start_time;
                 req_stat(req_time);
-                tc_log_info(LOG_INFO, 0, "req time 4 style(ms): %u , p:%u", 
+                tc_log_debug2(LOG_INFO, 0, "req time 4 style(ms): %u , p:%u", 
                         req_time, s->clt_port);
             }
         }
@@ -214,13 +214,14 @@ process_client_packet(session_t *s, tc_ip_header_t *ip_header,
                     s->resp_end_time = settings.pcap_time;
                     req_time = s->resp_end_time - s->req_start_time;
                     req_stat(req_time);
-                    tc_log_info(LOG_INFO, 0, "req time 1 style(ms): %u , p:%u",
+                    tc_log_debug2(LOG_INFO, 0, 
+                            "req time 1 style(ms): %u , p:%u",
                             req_time, s->clt_port);
                 }
             } else {
                 req_time = s->last_pcap_time - s->req_start_time;
                 req_stat(req_time);
-                tc_log_info(LOG_INFO, 0, "req time 2 style(ms): %u , p:%u", 
+                tc_log_debug2(LOG_INFO, 0, "req time 2 style(ms): %u , p:%u", 
                         req_time, s->clt_port);
             }
 
@@ -271,7 +272,7 @@ process(char *packet)
     if (tcp_header->syn) {
 
         s  = hash_find(sessions_table, key);
-        if (NULL == s) {
+        if (s == NULL) {
             /* create a new session */
             s = session_add(key, ip_header, tcp_header);
             if (s == NULL) {
