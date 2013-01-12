@@ -107,7 +107,7 @@ tc_offline_parse(char *pcap_file)
             last_pack_time = pkt_hdr.ts;
             if (ip_data != NULL) {
                 settings.pcap_time = last_pack_time.tv_sec * 1000 + 
-                    last_pack_time.tv_usec/1000; 
+                    last_pack_time.tv_usec / 1000; 
 
                 ip_pack_len = pkt_hdr.len - l2_len;
                 if (is_packet_needed((const char *) ip_data)) {  
