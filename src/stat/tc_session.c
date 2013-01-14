@@ -142,7 +142,7 @@ process_client_packet(session_t *s, tc_ip_header_t *ip_header,
     uint32_t  seq, ack, diff;
     long      req_time = 0;
 
-    /*tc_log_debug_trace(LOG_DEBUG, 0, CLIENT_FLAG, ip_header, tcp_header);*/
+    tc_log_debug_trace(LOG_INFO, 0, CLIENT_FLAG, ip_header, tcp_header);
 
     if (s->clt_port == 0) {
         s->clt_port = ntohs(tcp_header->source);
@@ -171,8 +171,8 @@ process_client_packet(session_t *s, tc_ip_header_t *ip_header,
             req_time = s->resp_end_time - s->req_start_time;
 
             req_stat(req_time);
-            tc_log_info(LOG_INFO, 0, "seq %u, req time 5 style(ms): %u, p:%u", 
-                    s->req_cont_first_seq, req_time, s->clt_port);
+            tc_log_info(LOG_INFO, 0, "req time 5 style(ms): %u,seq %u,p:%u", 
+                    req_time, s->req_cont_first_seq, s->clt_port);
         }
 
         s->sm.sess_over = 1;
@@ -187,16 +187,16 @@ process_client_packet(session_t *s, tc_ip_header_t *ip_header,
                 req_time = s->resp_end_time - s->req_start_time;
                 req_stat(req_time);
                 tc_log_info(LOG_INFO, 0, 
-                        "seq %u, req time 3 style(ms): %u , p:%u", 
-                        s->req_cont_first_seq, req_time, s->clt_port);
+                        "req time 3 style(ms):%u,seq %u,p:%u", 
+                        req_time, s->req_cont_first_seq, s->clt_port);
             }
         } else {
             if (ack != s->req_cont_last_ack) {
                 req_time = s->last_pcap_time - s->req_start_time;
                 req_stat(req_time);
                 tc_log_info(LOG_INFO, 0, 
-                        "seq %u, req time 4 style(ms): %u , p:%u", 
-                        s->req_cont_first_seq, req_time, s->clt_port);
+                        "req time 4 style(ms): %u,seq %u,p:%u", 
+                        req_time, s->req_cont_first_seq, s->clt_port);
             }
         }
         s->sm.sess_over = 1;
@@ -211,7 +211,10 @@ process_client_packet(session_t *s, tc_ip_header_t *ip_header,
 
         if (ack != s->req_cont_last_ack) {
 
-            s->req_cont_first_seq = seq;
+            if (seq  <= s->req_cont_first_seq) {
+                tc_log_info(LOG_NOTICE, 0, "duplicate p:%u", s->clt_port);
+                return;
+            }
 
             s->reqs++;
 
@@ -223,14 +226,14 @@ process_client_packet(session_t *s, tc_ip_header_t *ip_header,
                     req_time = s->resp_end_time - s->req_start_time;
                     req_stat(req_time);
                     tc_log_info(LOG_INFO, 0, 
-                            "seq %u, req time 1 style(ms): %u , p:%u",
-                            s->req_cont_first_seq, req_time, s->clt_port);
+                            "req time 1 style(ms): %u,seq %u,p:%u",
+                            req_time, s->req_cont_first_seq, s->clt_port);
                 }
             } else {
                 req_time = s->last_pcap_time - s->req_start_time;
                 req_stat(req_time);
-                tc_log_info(LOG_INFO, 0, "seq %u, req time 2 style(ms): %u , p:%u", 
-                        s->req_cont_first_seq, req_time, s->clt_port);
+                tc_log_info(LOG_INFO, 0, "req time 2 style(ms): %u,seq %u,p:%u", 
+                        req_time, s->req_cont_first_seq, s->clt_port);
             }
 
             if (!s->sm.first_req) {
@@ -239,8 +242,11 @@ process_client_packet(session_t *s, tc_ip_header_t *ip_header,
             } else {
                 s->req_start_time = settings.pcap_time;
             }
+
             s->req_cont_last_ack = ack;
+            s->req_cont_first_seq = seq;
         }
+
         s->resp_end_time = 0;
 
     } else {
