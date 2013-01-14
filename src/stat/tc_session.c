@@ -187,7 +187,7 @@ process_client_packet(session_t *s, tc_ip_header_t *ip_header,
                 req_time = s->resp_end_time - s->req_start_time;
                 req_stat(req_time);
                 tc_log_info(LOG_INFO, 0, 
-                        "req time 3 style(ms):%u,seq %u,p:%u", 
+                        "req time 3 style(ms): %u,seq %u,p:%u", 
                         req_time, s->req_cont_first_seq, s->clt_port);
             }
         } else {
