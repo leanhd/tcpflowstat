@@ -44,6 +44,8 @@ usage(void)
     printf("-i <file>      set the pcap file used for TCPStat to <file> (only valid for the\n"
            "               offline version of TCPStat when it is configured to run at\n"
            "               enable-offline mode)\n");
+    printf("-L <num>       set the min value for req time\n");
+    printf("-H <num>       set the max value for req time\n");
     printf("-l <file>      save the log information in <file>\n");
     printf("-P <file>      save PID in <file>, only used with -d option\n"
            "-h             print this help and exit\n"
@@ -60,6 +62,8 @@ read_args(int argc, char **argv)
 
     while (-1 != (c = getopt(argc, argv,
          "x:" /* <target,> */
+         "L:" 
+         "H:" 
          "i:" /* input pcap file */
          "l:" /* error log file */
          "P:" /* save PID in file */
@@ -70,6 +74,12 @@ read_args(int argc, char **argv)
         switch (c) {
             case 'x':
                 settings.raw_stat= optarg;
+                break;
+            case 'L':
+                settings.min_req_time = atoi(optarg);
+                break;
+            case 'H':
+                settings.max_req_time = atoi(optarg);
                 break;
             case 'i':
                 settings.pcap_file= optarg;
@@ -209,6 +219,15 @@ set_details()
                               &settings.stat) == -1)
     {
         return -1;
+    }
+
+
+    if (settings.min_req_time < 0) {
+        settings.min_req_time = 0;
+    }
+
+    if (settings.max_req_time <= 0) {
+        settings.max_req_time = 65536;
     }
 
     if (settings.pcap_file == NULL) {

@@ -121,6 +121,9 @@ session_add(uint64_t key, tc_ip_header_t *ip_header,
 
 static void req_stat(long req_time)
 {
+    if (req_time < settings.min_req_time || req_time > settings.max_req_time) {
+        return;
+    } 
     total_req_time += req_time;
     total_reqs++;
     if (req_time >= 0 || req_time < 65536) {

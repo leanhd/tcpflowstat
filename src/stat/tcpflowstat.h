@@ -16,6 +16,8 @@ typedef struct {
 
 typedef struct xstat_settings {
     unsigned int  do_daemonize:1;       /* daemon flag */
+    int           min_req_time;      
+    int           max_req_time;      
 
     char         *raw_stat;         
 
