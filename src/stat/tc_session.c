@@ -169,12 +169,14 @@ process_client_packet(session_t *s, tc_ip_header_t *ip_header,
         /* it may ack the fin packet */
         if (s->req_start_time != 0 && s->resp_end_time != 0) {                        
             req_time = s->resp_end_time - s->req_start_time;
+
             req_stat(req_time);
             tc_log_info(LOG_INFO, 0, "seq %u, req time 5 style(ms): %u, p:%u", 
                     s->req_cont_first_seq, req_time, s->clt_port);
         }
 
         s->sm.sess_over = 1;
+        return;
     }
 
     if (tcp_header->rst || tcp_header->fin) {

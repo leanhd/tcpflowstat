@@ -20,6 +20,7 @@ tcp_stat_over(const int sig)
     long int pid   = (long int)syscall(SYS_gettid);
 
     tc_log_info(LOG_WARN, 0, "sig %d received, pid=%ld", sig, pid);
+    settings.over = 1;
 
 }
 

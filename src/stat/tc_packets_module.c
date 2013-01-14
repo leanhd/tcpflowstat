@@ -119,6 +119,10 @@ tc_offline_parse(char *pcap_file)
                     tc_log_debug0(LOG_DEBUG, 0, "invalid flag");
                 }
             }
+
+            if (settings.over) {
+                stop = true;
+            }
         } else {
 
             tc_log_info(LOG_WARN, 0, "stop, null from pcap_next");
