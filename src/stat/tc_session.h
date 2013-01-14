@@ -30,6 +30,7 @@ typedef struct session_s{
 
 
     uint32_t req_cont_last_ack;
+    uint32_t req_cont_first_seq;
     uint32_t req_last_ack;
     uint32_t req_last_seq;
 
