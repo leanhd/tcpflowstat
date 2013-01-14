@@ -184,7 +184,7 @@ process_client_packet(session_t *s, tc_ip_header_t *ip_header,
                 s->resp_end_time = settings.pcap_time;
                 req_time = s->resp_end_time - s->req_start_time;
                 req_stat(req_time);
-                tc_log_debug3(LOG_INFO, 0, 
+                tc_log_info(LOG_INFO, 0, 
                         "seq %u, req time 3 style(ms): %u , p:%u", 
                         s->req_cont_first_seq, req_time, s->clt_port);
             }
@@ -192,7 +192,7 @@ process_client_packet(session_t *s, tc_ip_header_t *ip_header,
             if (ack != s->req_cont_last_ack) {
                 req_time = s->last_pcap_time - s->req_start_time;
                 req_stat(req_time);
-                tc_log_debug3(LOG_INFO, 0, 
+                tc_log_info(LOG_INFO, 0, 
                         "seq %u, req time 4 style(ms): %u , p:%u", 
                         s->req_cont_first_seq, req_time, s->clt_port);
             }
@@ -220,14 +220,14 @@ process_client_packet(session_t *s, tc_ip_header_t *ip_header,
                     s->resp_end_time = settings.pcap_time;
                     req_time = s->resp_end_time - s->req_start_time;
                     req_stat(req_time);
-                    tc_log_debug3(LOG_INFO, 0, 
+                    tc_log_info(LOG_INFO, 0, 
                             "seq %u, req time 1 style(ms): %u , p:%u",
                             s->req_cont_first_seq, req_time, s->clt_port);
                 }
             } else {
                 req_time = s->last_pcap_time - s->req_start_time;
                 req_stat(req_time);
-                tc_log_debug3(LOG_INFO, 0, "seq %u, req time 2 style(ms): %u , p:%u", 
+                tc_log_info(LOG_INFO, 0, "seq %u, req time 2 style(ms): %u , p:%u", 
                         s->req_cont_first_seq, req_time, s->clt_port);
             }
 
