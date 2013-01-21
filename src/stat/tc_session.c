@@ -119,16 +119,17 @@ session_add(uint64_t key, tc_ip_header_t *ip_header,
 }
 
 
-static void req_stat(long req_time)
+static bool req_stat(long req_time)
 {
     if (req_time < settings.min_req_time || req_time > settings.max_req_time) {
-        return;
+        return false;
     } 
     total_req_time += req_time;
     total_reqs++;
     if (req_time >= 0 || req_time < 65536) {
         distribution[req_time]++;
     }
+    true;
 }
 
 /*
@@ -170,9 +171,11 @@ process_client_packet(session_t *s, tc_ip_header_t *ip_header,
         if (s->req_start_time != 0 && s->resp_end_time != 0) {                        
             req_time = s->resp_end_time - s->req_start_time;
 
-            req_stat(req_time);
-            tc_log_info(LOG_INFO, 0, "req time 5 style(ms): %u,seq %u,p:%u", 
-                    req_time, s->req_cont_first_seq, s->clt_port);
+            if (req_stat(req_time)) {
+                tc_log_info(LOG_INFO, 0, 
+                        "req time 5 style(ms): %u,seq %u,p:%u", 
+                        req_time, s->req_cont_first_seq, s->clt_port);
+            }
         }
 
         s->sm.sess_over = 1;
@@ -185,18 +188,20 @@ process_client_packet(session_t *s, tc_ip_header_t *ip_header,
             if (s->req_start_time != 0) {                        
                 s->resp_end_time = settings.pcap_time;
                 req_time = s->resp_end_time - s->req_start_time;
-                req_stat(req_time);
-                tc_log_info(LOG_INFO, 0, 
-                        "req time 3 style(ms): %u,seq %u,p:%u", 
-                        req_time, s->req_cont_first_seq, s->clt_port);
+                if (req_stat(req_time)) {
+                    tc_log_info(LOG_INFO, 0, 
+                            "req time 3 style(ms): %u,seq %u,p:%u", 
+                            req_time, s->req_cont_first_seq, s->clt_port);
+                }
             }
         } else {
             if (ack != s->req_cont_last_ack) {
                 req_time = s->last_pcap_time - s->req_start_time;
-                req_stat(req_time);
-                tc_log_info(LOG_INFO, 0, 
-                        "req time 4 style(ms): %u,seq %u,p:%u", 
-                        req_time, s->req_cont_first_seq, s->clt_port);
+                if (req_stat(req_time)) {
+                    tc_log_info(LOG_INFO, 0, 
+                            "req time 4 style(ms): %u,seq %u,p:%u", 
+                            req_time, s->req_cont_first_seq, s->clt_port);
+                }
             }
         }
         s->sm.sess_over = 1;
@@ -224,16 +229,18 @@ process_client_packet(session_t *s, tc_ip_header_t *ip_header,
                 if (s->req_start_time != 0) {                        
                     s->resp_end_time = settings.pcap_time;
                     req_time = s->resp_end_time - s->req_start_time;
-                    req_stat(req_time);
-                    tc_log_info(LOG_INFO, 0, 
-                            "req time 1 style(ms): %u,seq %u,p:%u",
-                            req_time, s->req_cont_first_seq, s->clt_port);
+                    if (req_stat(req_time)) {
+                        tc_log_info(LOG_INFO, 0, 
+                                "req time 1 style(ms): %u,seq %u,p:%u",
+                                req_time, s->req_cont_first_seq, s->clt_port);
+                    }
                 }
             } else {
                 req_time = s->last_pcap_time - s->req_start_time;
-                req_stat(req_time);
+                if (req_stat(req_time)) {
                 tc_log_info(LOG_INFO, 0, "req time 2 style(ms): %u,seq %u,p:%u", 
                         req_time, s->req_cont_first_seq, s->clt_port);
+                }
             }
 
             if (!s->sm.first_req) {
