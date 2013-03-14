@@ -47,6 +47,8 @@ AC_TYPE_SIGNAL
 AC_FUNC_VPRINTF
 AC_CHECK_FUNCS([atexit gettimeofday inet_ntoa memset select socket localtime_r])
 
+AC_CHECK_HEADERS([pcap.h], [], [AC_MSG_ERROR([pcap.h not found.])], [])
+
 LIBS="-lpcap"
 
 CFLAGS="-g -Wall -Wunused-function -pedantic -I../core -I../stat -I../util"
