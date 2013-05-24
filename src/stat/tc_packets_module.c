@@ -71,7 +71,7 @@ is_packet_needed(const char *packet)
 int
 tc_offline_parse(char *pcap_file)
 {
-    int                 l2_len, ip_pack_len = 0;
+    int                 l2_len;
     bool                stop = false;
     char                ebuf[PCAP_ERRBUF_SIZE];
     pcap_t             *pcap;
@@ -109,7 +109,6 @@ tc_offline_parse(char *pcap_file)
                 settings.pcap_time = last_pack_time.tv_sec * 1000 + 
                     last_pack_time.tv_usec / 1000; 
 
-                ip_pack_len = pkt_hdr.len - l2_len;
                 if (is_packet_needed((const char *) ip_data)) {  
 
                     process((char *)ip_data);

@@ -168,12 +168,15 @@ retrieve_target_addresses(char *raw_stat,
     if (stat->mappings == NULL) {
         return -1;
     }
+    memset(stat->mappings, 0, 
+            stat->num * sizeof(ip_port_pair_mapping_t *));
 
     for (i = 0; i < stat->num; i++) {
         stat->mappings[i] = malloc(sizeof(ip_port_pair_mapping_t));
         if (stat->mappings[i] == NULL) {
             return -1;
         }
+        memset(stat->mappings[i], 0, sizeof(ip_port_pair_mapping_t));
     }
 
     p = raw_stat;

@@ -129,7 +129,7 @@ static bool req_stat(long req_time)
     if (req_time >= 0 || req_time < 65536) {
         distribution[req_time]++;
     }
-    true;
+    return true;
 }
 
 /*
